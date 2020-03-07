@@ -1,0 +1,17 @@
+.maze-row {
+  list-style: none;
+  display: table;
+}
+
+.maze-col {
+  width: 30px;
+  height: 30px;
+  border: solid 1px #000;
+  display: table-cell;
+  padding: 1px;
+}
+
+.maze-item {
+  width: 25px;
+  height: 25px;
+}

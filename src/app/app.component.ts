@@ -15,8 +15,6 @@ export class AppComponent implements OnInit {
   EMPTY: ICellType = "empty";
   ENEMY: ICellType = "enemy";
   PLAYER: ICellType = "player";
-  rowChar = "R";
-  columnChar = "C";
   enemyCount = 0;
   playerRowIndex = 0;
   playerColumnIndex = 0;
@@ -158,7 +156,6 @@ export class AppComponent implements OnInit {
         this.displayPlayerWonMessage();
       }
     }
-    console.log(this.mazeObj);
   }
 
   checkAndUpdateEnemyCount(newRowIndex: number, newColumnIndex: number) {
@@ -175,9 +172,9 @@ export class AppComponent implements OnInit {
   }
 
   displayPlayerWonMessage() {
-    alert(`Player won in ${this.stepsCount} steps!`);
+    alert(`Game over. Total moves to save Princess : ${this.stepsCount}`);
     this.resetProp();
-    this.initApp();
+    setTimeout(() => this.initApp(), 1000);
   }
 
   getRandomNumberInRange(min: number, max: number): number {
