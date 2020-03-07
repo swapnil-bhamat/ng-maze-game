@@ -2,14 +2,6 @@ import { Component, OnInit, HostListener } from "@angular/core";
 
 type ICellType = "empty" | "enemy" | "player";
 
-interface IRows {
-  [key: string]: ICellType;
-}
-
-interface IMaze {
-  [key: string]: IRows;
-}
-
 @Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
@@ -19,7 +11,7 @@ export class AppComponent implements OnInit {
   title = "ng-maze-game";
   totalRows = 4;
   totalColumns = 4;
-  mazeObj: IMaze = {};
+  mazeObj: Array<Array<ICellType>> = [];
   EMPTY: ICellType = "empty";
   ENEMY: ICellType = "enemy";
   PLAYER: ICellType = "player";
@@ -74,12 +66,12 @@ export class AppComponent implements OnInit {
     this.mazeObj = this.getMazeCellsData();
   }
 
-  getMazeCellsData(): IMaze {
-    let mazeObj = {};
-    for (let r = 1; r <= this.totalRows; r++) {
-      mazeObj[this.rowChar + r] = {};
-      for (let c = 1; c <= this.totalColumns; c++) {
-        mazeObj[this.rowChar + r][this.columnChar + c] = this.EMPTY;
+  getMazeCellsData() {
+    let mazeObj = [];
+    for (let r = 0; r < this.totalRows; r++) {
+      mazeObj[r] = [];
+      for (let c = 0; c < this.totalColumns; c++) {
+        mazeObj[r][c] = this.EMPTY;
       }
     }
     return mazeObj;
@@ -88,9 +80,8 @@ export class AppComponent implements OnInit {
   placeEnemy() {
     let enemyAdded = 0;
     while (enemyAdded < this.enemyCount) {
-      let row = this.rowChar + this.getRandomNumberInRange(1, this.totalRows);
-      let column =
-        this.columnChar + this.getRandomNumberInRange(1, this.totalColumns);
+      let row = this.getRandomNumberInRange(0, this.totalRows - 1);
+      let column = this.getRandomNumberInRange(0, this.totalColumns - 1);
       if (this.mazeObj[row][column] === this.ENEMY) {
         continue;
       } else {
@@ -105,15 +96,15 @@ export class AppComponent implements OnInit {
     while (!playerAdded) {
       let rowCenter = Math.trunc(this.totalRows / 2);
       let columnCenter = Math.trunc(this.totalColumns / 2);
-      rowCenter = rowCenter === 1 ? rowCenter + 1 : rowCenter;
-      columnCenter = columnCenter === 1 ? columnCenter + 1 : columnCenter;
+      // rowCenter = rowCenter === 1 ? rowCenter + 1 : rowCenter;
+      // columnCenter = columnCenter === 1 ? columnCenter + 1 : columnCenter;
       let rowIndex = this.getRandomNumberInRange(rowCenter - 1, rowCenter + 1);
       let columnIndex = this.getRandomNumberInRange(
         columnCenter - 1,
         columnCenter + 1
       );
-      let row = this.rowChar + rowIndex;
-      let column = this.columnChar + columnIndex;
+      let row = rowIndex;
+      let column = columnIndex;
       if (this.mazeObj[row][column] === this.ENEMY) {
         continue;
       } else {
@@ -130,22 +121,24 @@ export class AppComponent implements OnInit {
     let newColumnIndex = this.playerColumnIndex;
     switch (key) {
       case "ArrowUp": {
-        newRowIndex = newRowIndex === 1 ? 1 : newRowIndex - 1;
+        newRowIndex = newRowIndex === 0 ? 0 : newRowIndex - 1;
         break;
       }
       case "ArrowDown": {
         newRowIndex =
-          newRowIndex === this.totalRows ? this.totalRows : newRowIndex + 1;
+          newRowIndex === this.totalRows - 1
+            ? this.totalRows - 1
+            : newRowIndex + 1;
         break;
       }
       case "ArrowLeft": {
-        newColumnIndex = newColumnIndex === 1 ? 1 : newColumnIndex - 1;
+        newColumnIndex = newColumnIndex === 0 ? 0 : newColumnIndex - 1;
         break;
       }
       case "ArrowRight": {
         newColumnIndex =
-          newColumnIndex === this.totalColumns
-            ? this.totalColumns
+          newColumnIndex === this.totalColumns - 1
+            ? this.totalColumns - 1
             : newColumnIndex + 1;
         break;
       }
@@ -165,25 +158,18 @@ export class AppComponent implements OnInit {
         this.displayPlayerWonMessage();
       }
     }
+    console.log(this.mazeObj);
   }
 
   checkAndUpdateEnemyCount(newRowIndex: number, newColumnIndex: number) {
-    if (
-      this.mazeObj[this.rowChar + newRowIndex][
-        this.columnChar + newColumnIndex
-      ] === this.ENEMY
-    ) {
+    if (this.mazeObj[newRowIndex][newColumnIndex] === this.ENEMY) {
       this.enemyCount--;
     }
   }
 
   updatePlayerLocation(newRowIndex: number, newColumnIndex: number) {
-    this.mazeObj[this.rowChar + this.playerRowIndex][
-      this.columnChar + this.playerColumnIndex
-    ] = this.EMPTY;
-    this.mazeObj[this.rowChar + newRowIndex][
-      this.columnChar + newColumnIndex
-    ] = this.PLAYER;
+    this.mazeObj[this.playerRowIndex][this.playerColumnIndex] = this.EMPTY;
+    this.mazeObj[newRowIndex][newColumnIndex] = this.PLAYER;
     this.playerRowIndex = newRowIndex;
     this.playerColumnIndex = newColumnIndex;
   }
