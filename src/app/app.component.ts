@@ -1,6 +1,5 @@
 import { Component, OnInit, HostListener } from "@angular/core";
-
-type ICellType = "empty" | "enemy" | "player";
+import { ICellType } from "./app.types";
 
 @Component({
   selector: "app-root",
@@ -30,8 +29,8 @@ export class AppComponent implements OnInit {
   }
 
   initApp() {
-    this.totalRows = this.getRowsFromUser();
     this.totalColumns = this.getColumnsFromUser();
+    this.totalRows = this.getRowsFromUser();
     this.enemyCount = Math.trunc((this.totalRows + this.totalColumns) / 2);
     this.generateMaze();
     this.placeEnemy();
@@ -45,7 +44,7 @@ export class AppComponent implements OnInit {
   }
 
   getRowsFromUser() {
-    let rows = parseInt(prompt("Please enter board width", ""));
+    let rows = parseInt(prompt("Please enter board height", ""));
     if (isNaN(rows)) {
       rows = this.totalRows;
     }
@@ -53,7 +52,7 @@ export class AppComponent implements OnInit {
   }
 
   getColumnsFromUser() {
-    let column = parseInt(prompt("Please enter board height", ""));
+    let column = parseInt(prompt("Please enter board width", ""));
     if (isNaN(column)) {
       column = this.totalColumns;
     }
@@ -92,26 +91,36 @@ export class AppComponent implements OnInit {
   placePlayer() {
     let playerAdded = false;
     while (!playerAdded) {
-      let rowCenter = Math.trunc(this.totalRows / 2);
-      let columnCenter = Math.trunc(this.totalColumns / 2);
-      // rowCenter = rowCenter === 1 ? rowCenter + 1 : rowCenter;
-      // columnCenter = columnCenter === 1 ? columnCenter + 1 : columnCenter;
-      let rowIndex = this.getRandomNumberInRange(rowCenter - 1, rowCenter + 1);
-      let columnIndex = this.getRandomNumberInRange(
-        columnCenter - 1,
-        columnCenter + 1
-      );
-      let row = rowIndex;
-      let column = columnIndex;
-      if (this.mazeObj[row][column] === this.ENEMY) {
+      let { rowIndex, columnIndex } = this.getPlayerLocation();
+      if (this.mazeObj[rowIndex][columnIndex] === this.ENEMY) {
         continue;
       } else {
-        this.mazeObj[row][column] = this.PLAYER;
+        this.mazeObj[rowIndex][columnIndex] = this.PLAYER;
         this.playerRowIndex = rowIndex;
         this.playerColumnIndex = columnIndex;
         playerAdded = true;
       }
     }
+  }
+
+  getPlayerLocation() {
+    let rowCenter = Math.trunc(this.totalRows / 2);
+    let columnCenter = Math.trunc(this.totalColumns / 2);
+    let rowStartIndex = rowCenter - 1 < 0 ? 0 : rowCenter - 1;
+    let rowEndIndex =
+      rowCenter + 1 >= this.totalRows ? this.totalRows - 1 : rowCenter + 1;
+
+    let columnStartIndex = columnCenter - 1 < 0 ? 0 : columnCenter - 1;
+    let columnEndIndex =
+      columnCenter + 1 >= this.totalColumns
+        ? this.totalColumns - 1
+        : columnCenter + 1;
+    let rowIndex = this.getRandomNumberInRange(rowStartIndex, rowEndIndex);
+    let columnIndex = this.getRandomNumberInRange(
+      columnStartIndex,
+      columnEndIndex
+    );
+    return { rowIndex, columnIndex };
   }
 
   handlePlayerNavigation(key: string) {
